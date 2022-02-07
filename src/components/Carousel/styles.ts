@@ -39,6 +39,7 @@ export const List = styled.ul<IList>`
    align-items: center;
    gap: 1rem;
    overflow: hidden;
+   transition: all 0.2s ease;
 `
 
 export const Item = styled.li`
