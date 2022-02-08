@@ -18,47 +18,78 @@ export const Title = styled.h3`
    padding: 1rem;
 `
 
+interface IListWrapper {
+   justifyContent: string
+}
+
 export const ListWrapper = styled.div`
    grid-area: LW;
+   display: flex;
+   position: relative;
+   width: 100%;
+   height: 100%;
    overflow: hidden;
 `
 
 interface IList {
-   left: number
-   current: number
+   transform: string
+   transition: string
 }
 
-export const List = styled.ul<IList>`
+export const List = styled.ul`
+   list-style: none;
    position: relative;
-   left: calc(${props => 
-      `${-props.left}px`}
-      + ${props => `${-props.current}rem`});
-   padding: 1rem;
    display: flex;
    flex-wrap: none;
    align-items: center;
-   gap: 1rem;
    overflow: hidden;
-   transition: all 0.2s ease;
+   transform: ${({ transform }: IList) => transform};
+   transition: ${({ transition }: IList) => transition};
 `
 
-export const Item = styled.li`
+interface IItem {
+   width: string
+   height: string
+}
+
+export const Item = styled.li<IItem>`
    display: grid;
    place-items: center;
-   min-width: 150px;
-   width: 150px;
-   height: 80px;
-   color: #fff;
-   background-color: #7a48b3;
-   border-radius: 5px;
-   white-space: nowrap;
+   min-width: ${({ width }: IItem) => width};
+   width: ${({ width }: IItem) => width};
+   min-height: ${({ height }: IItem) => height};
+   height: ${({ height }: IItem) => height};
    overflow: hidden;
-   text-overflow: ellipsis;
-   transition: all 0.2s ease;
+   /* opacity: 0;
+   animation: fadeIn 0.5s ease forwards;
+
+   @keyframes fadeIn {
+      from {
+         opacity: 0;
+      }
+
+      to {
+         opacity: 1;
+      }
+   } */
+
+   /* transition: all 0.2s ease;
 
    &:hover {
       transform: scale(1.05);
-   }
+   } */
+`
+
+export const Content = styled.div`
+   display: grid;
+   place-items: center;
+   width: 80%;
+   height: 80%;
+   color: #fff;
+   background-color: #7a48b3;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+   border-radius: 7px;
 `
 
 export const NavigateBack = styled.button`

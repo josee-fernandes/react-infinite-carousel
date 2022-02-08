@@ -6,6 +6,7 @@ import {
    ListWrapper,
    List,
    Item,
+   Content,
    NavigateBack,
    NavigateForward
 } from './styles'
@@ -13,70 +14,81 @@ import {
 interface ICarousel {
    title: string
    items: string[]
-   maxItems?: number
+   thumbOrientation?: 'horizontal' | 'vertical'
 }
 
-export const Carousel: React.FC<ICarousel> = ({ title, items, maxItems = 5}) => {
-   const [visibleItems, setVisibleItems] = React.useState(items.slice(0, maxItems))
-   const [currentCount, setCurrentCount] = React.useState(0)
-   const [current, setCurrent] = React.useState(0)
-   const [previous, setPrevious] = React.useState(items.length - 1)
-   const [next, setNext] = React.useState(items[1] ? 1 : 0)
-   const [left, setLeft] = React.useState(0)
+export const Carousel: React.FC<ICarousel> = ({ title, items, thumbOrientation = 'horizontal' }) => {
+   const [direction, setDirection]  = React.useState<number>(-1)
+   const [transform, setTransform] = React.useState<string>('translateX(0)')
+   const [transition, setTransition] = React.useState<string>('all 0.3s ease')
 
-   const log = () => {
-      console.log({ current })
-      console.log({ previous })
-      console.log({ next })
-   }
+   const [width] = React.useState(thumbOrientation === 'horizontal' ? '300px' : '175px')
+   const [height] = React.useState(thumbOrientation === 'vertical' ? '200px' : '100px')
+
+   const listRef = React.useRef<HTMLUListElement>(null)
 
    const handleNavigateBack = () => {
-      setCurrentCount(currentCount - 1)
-      setNext(current)
-      setCurrent(previous)
-      setPrevious(items[previous - 1] ? previous - 1 : items.length - 1)
-      setLeft(left - 150)
+      if (direction === -1) {
+         listRef.current?.appendChild(listRef.current?.firstElementChild as HTMLElement)
+         
+         setDirection(1)
+      }
+
+      setTransform(`translateX(${width})`)
    }
    
    const handleNavigateForward = () => {
-      setCurrentCount(currentCount + 1)
-      setPrevious(current)
-      setCurrent(next)
-      setNext(items[next + 1] ? next + 1 : 0)
-      setLeft(left + 150)
+      if (direction === 1) {
+         listRef.current?.prepend(listRef.current?.lastElementChild as HTMLElement)
+         
+         setDirection(-1)
+      }
+      
+      setTransform(`translateX(-${width})`)
    }
 
-   React.useEffect(() => {
-      log()
-      console.log({ visibleItems })
-   }, [current])
+   const handleTransitionEnd = () => {
+      if (direction === -1) {
+         listRef.current?.appendChild(listRef.current?.firstElementChild as HTMLElement)
+      } else if (direction === 1) {
+         listRef.current?.prepend(listRef.current?.lastElementChild as HTMLElement)
+      }
+      
+      setTransition('none')
+      setTransform('translateX(0)')
+
+      setTimeout(() => {
+         setTransition('all 0.3s ease')
+      })
+   }
 
    return (
       <Container>
          <Title>
             {title}
          </Title>
-         {items?.length > maxItems && (
-            <NavigateBack onClick={handleNavigateBack}>
-               {'<'}
-            </NavigateBack>
-         )}
+         <NavigateBack onClick={handleNavigateBack}>
+            {'<'}
+         </NavigateBack>
          <ListWrapper>
-            <List left={left} current={currentCount}>
+            <List
+               ref={listRef}
+               transform={transform}
+               transition={transition}
+               onTransitionEnd={handleTransitionEnd}
+            >
                {items?.map((item, index) => {
                   return (
-                     <Item key={index}>
-                        {item}
+                     <Item key={index} width={width} height={height}>
+                        <Content>{item}</Content>
                      </Item>
                   )
                })}
             </List>
          </ListWrapper>
-         {items?.length > maxItems && (
-            <NavigateForward onClick={handleNavigateForward}>
-               {'>'}
-            </NavigateForward>
-         )}
+         <NavigateForward onClick={handleNavigateForward}>
+            {'>'}
+         </NavigateForward>
       </Container>
    )
 }
